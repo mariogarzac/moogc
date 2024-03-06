@@ -1,0 +1,4 @@
+.terraform
+minecraft
+credentials*
+.DS_Store
