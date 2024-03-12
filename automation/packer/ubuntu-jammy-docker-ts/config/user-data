@@ -1,3 +1,4 @@
+#cloud-config
 autoinstall:
   version: 1
   locale: en_US
@@ -22,12 +23,9 @@ autoinstall:
     timezone: America/Monterrey
     users:
       - name: mariomoo
-        groups:
-          - adm
-          - sudo
+        groups: [adm, sudo]
         lock-passwd: false
         sudo: ALL=(ALL) NOPASSWD:ALL
         shell: /bin/bash
         ssh_authorized_keys:
           - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDnOgSlh7hPP5Z5RGqOh7WmqgME58QUdUMJkJ+z9lnXQPCjK/uGoXL2T3kBtPRcjCVeZvHWQAd4/mydjZup7HgCC6tnQmFM7mA0vSSUeAUfKepMe+WZJS5l/JjOT1xIP7m/yowi8pNTyrMkHIltqSPfkBUrA7HDo6GppZAVFd05QRmxjbFa3OTBX+xW3o2o0BfqCszmwnxx3yfyK3Q/XXSpF1wLcFLFQEZiLUg2zoScYgdWai0ePJKRhnxppdy1ftZLgAwD0Hs1k8eS23uogwd/DgaSmfu1mQNCO11CKDL0txQbz9LDDjmyIjaE3o29+pbaNqTzD3ujID9KQtT2d5H8uNv9cmKA0ArWZdgTtIQiuuKzlDNbbXa+Vx+Ke2Yx++ckLBqBxgMx6cMtkNeiiiogDCbVagFL8kLup0KHZVPLGASme094TxnLnyy9t9OE//fPqN0tCrfwd29Dt4YKSr569R7EsF92QtHXUwfwbaFW+VISY3wctzMDoYUW4rI5P589lPbMTgMzxBIRqdNmdnFUyfn3/EQvjgbljR2XfYqtsC3bE20gvo6ZNTyiOQHtRWXAdcj5KX4fIg6AvcP1eiA80zqvGeJVWhWLQm3Csdz+ltPl2LxyYhLtR+YWS/00IdZcy6mlOxqz4JMIJ41Au6JrwhahN/Z56zOCeJxAh39ZeQ== mariogarzac99@gmail.com
-
