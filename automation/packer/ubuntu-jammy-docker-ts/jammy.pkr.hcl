@@ -56,7 +56,7 @@ source "proxmox-iso" "ubuntu-jammy" {
 
 # VM General settings
     node                 = "proxmox"
-    vm_id                = "500"
+    vm_id                = "501"
     vm_name              = "ubuntu-jammy"
     template_description = "Ubuntu server with docker, tailscale and net-tools"
 
@@ -68,7 +68,7 @@ source "proxmox-iso" "ubuntu-jammy" {
     disks {
         disk_size    = "20G"
         storage_pool = "local"
-        type         = "scsi"
+        type         = "virtio"
     }
 
 
@@ -99,7 +99,7 @@ source "proxmox-iso" "ubuntu-jammy" {
 
 # Build Definition to create the VM Template
 build {
-    name    = "ubuntu-jammy"
+    name    = "ubuntu-jammy-d-ts"
     sources = ["source.proxmox-iso.ubuntu-jammy"]
 
 # Provisioning the VM Template for Cloud-Init Integration in Proxmox #1
