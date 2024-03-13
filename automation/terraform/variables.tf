@@ -12,8 +12,3 @@ variable "ipconfig" {
   type    = string
   default = ""
 }
-
-variable "password" {
-  type    = string
-  default = ""
-}
