@@ -22,7 +22,7 @@ variable "proxmox_api_token_secret" {
 }
 
 # docker tailscale net-tools
-source "proxmox-iso" "ubuntu-jammy" {
+source "proxmox-iso" "ubuntu-jammy-ci" {
 
   # PACKER Boot Commands
   boot_command = [
@@ -40,7 +40,7 @@ source "proxmox-iso" "ubuntu-jammy" {
   http_port_max  = 8802
 
   boot      = "c"
-  boot_wait = "5"
+  boot_wait = "5s"
 
   # SSH Settings
   ssh_username         = "mariomoo"
@@ -56,8 +56,8 @@ source "proxmox-iso" "ubuntu-jammy" {
 
   # VM General settings
   node                 = "proxmox"
-  vm_id                = "501"
-  vm_name              = "ubuntu-jammy"
+  vm_id                = "502"
+  vm_name              = "ubuntu-jammy-ci"
   template_description = "Ubuntu server with docker, tailscale and net-tools"
 
   # VM OS Settings
@@ -99,8 +99,8 @@ source "proxmox-iso" "ubuntu-jammy" {
 
 # Build Definition to create the VM Template
 build {
-  name    = "ubuntu-jammy-d-ts"
-  sources = ["source.proxmox-iso.ubuntu-jammy"]
+  name    = "ubuntu-jammy-ci"
+  sources = ["source.proxmox-iso.ubuntu-jammy-ci"]
 
   # Provisioning the VM Template for Cloud-Init Integration in Proxmox #1
   provisioner "shell" {
@@ -126,12 +126,6 @@ build {
   # Provisioning the VM Template for Cloud-Init Integration in Proxmox #3
   provisioner "shell" {
     inline = ["sudo cp /tmp/99-pve.cfg /etc/cloud/cloud.cfg.d/99-pve.cfg"]
-  }
-
-  provisioner "shell" {
-    inline = [
-      "sudo apt-get install net-tools",
-    ]
   }
 
   # Provisioning the VM Template with Docker Installation #4
