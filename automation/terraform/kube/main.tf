@@ -1,6 +1,6 @@
 resource "proxmox_vm_qemu" "kube" {
-  vmid        = module.root.vmid
-  name        = module.root.name
+  vmid        = var.vmid
+  name        = var.name
   desc        = "Kubernetes node"
   target_node = "proxmox"
 
@@ -33,7 +33,7 @@ resource "proxmox_vm_qemu" "kube" {
   }
 
   os_type   = "cloud-init"
-  ipconfig0 = module.root.ipconfig
+  ipconfig0 = var.ipconfig
   ciuser    = "mariomoo"
   sshkeys   = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCpAFVAp647UneXqjqTd5xUKxr7u/PerxHoTG96T5jUDrUkwHT4q6yvI1GIvHkkOsRN0GkUYLJtfniScIdzQbKOAXXy/ly91YMsc6ecaIV7Cu11ulmpNQFOMRW3qgBrJ9bi5RlJ8c05vFfJ5C0Pmdg5GNANCWHwHoQOEZZ9LxVZbLqjFJurAqX4T/W8OBQ0OsK7r4FnFLSpsyXRkZQqOimXVWrANE1s6eg66CyeOVZriSSGfBJxOMZw9WuXAwjTHMjh2zigBTDEEZ3776D9WOkix46mT3IKJW+KDU3X09rxET2/wNCOP4BHSm4kPUO13Bk+Vt37mFkxSyAF4lszfLftLwTTptjtqOAyfAdV/TCHMMmlCj8UEzFEJWHMEsONR8fjnnoEmeYaqivn2ZQnLOS5XTaX9PdwdZfzE8PG7ocpPe2gi5MFY9YtlL/mA23Hz91KZeff0+/rEoeCxYpRnBTiLGAVYQGKkGBL7VhAQGzTgMq1E+EVWAvVcKIGEjPm7sk= mariogarza@kravaraad.local"
 }
