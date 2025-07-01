@@ -9,20 +9,23 @@ packer {
 
 variable "proxmox_api_url" {
   type = string
+  default = ""
 }
 
 variable "proxmox_api_token_id" {
   type      = string
+  default = ""
   sensitive = true
 }
 
 variable "proxmox_api_token_secret" {
   type      = string
+  default = ""
   sensitive = true
 }
 
-# docker tailscale net-tools
-source "proxmox-iso" "ubuntu-jammy-ci" {
+# docker tailscale
+source "proxmox-iso" "ubuntu-template" {
 
   # PACKER Boot Commands
   boot_command = [
@@ -43,7 +46,7 @@ source "proxmox-iso" "ubuntu-jammy-ci" {
   boot_wait = "5s"
 
   # SSH Settings
-  ssh_username         = "mariomoo"
+  ssh_username         = "mario"
   ssh_private_key_file = "~/.ssh/id_rsa"
 
   ssh_timeout = "20m"
@@ -56,21 +59,23 @@ source "proxmox-iso" "ubuntu-jammy-ci" {
 
   # VM General settings
   node                 = "proxmox"
-  vm_id                = "502"
-  vm_name              = "ubuntu-jammy-ci"
-  template_description = "Ubuntu server with docker, tailscale and net-tools"
+  vm_id                = "505"
+  vm_name              = "ubuntu-template"
+  template_description = "Ubuntu server with docker and tailscale"
 
   # VM OS Settings
-  iso_file         = "local:iso/Ubuntu_Server_22.04.4.iso"
-  iso_storage_pool = "local"
-  unmount_iso      = true
+    boot_iso {
+      type = "scsi"
+      iso_file         = "local:iso/Ubuntu_Server_22.04.4.iso"
+      iso_storage_pool = "local"
+      unmount = true
+    }
 
   disks {
-    disk_size    = "20G"
+    disk_size    = "15G"
     storage_pool = "local"
     type         = "virtio"
   }
-
 
   # VM System Settings
   qemu_agent = true
@@ -99,8 +104,8 @@ source "proxmox-iso" "ubuntu-jammy-ci" {
 
 # Build Definition to create the VM Template
 build {
-  name    = "ubuntu-jammy-ci"
-  sources = ["source.proxmox-iso.ubuntu-jammy-ci"]
+  name    = "ubuntu-template"
+  sources = ["source.proxmox-iso.ubuntu-template"]
 
   # Provisioning the VM Template for Cloud-Init Integration in Proxmox #1
   provisioner "shell" {
@@ -136,16 +141,17 @@ build {
       "echo \"deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null",
       "sudo apt-get -y update",
       "sudo apt-get install -y docker-ce docker-ce-cli containerd.io",
+      "sudo usermod -aG docker mario"
     ]
   }
 
+  # Provisioning the VM Template with Tailscale Installation #5
   provisioner "shell" {
     inline = [
-      "sudo apt-get install openssh-server curl git -y",
-      "curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null",
-      "curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list",
-      "sudo apt-get -y update",
-      "sudo apt-get install tailscale -y",
+    "curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null",
+    "curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list",
+    "sudo apt-get update",
+    "sudo apt-get install tailscale -y",
     ]
   }
 }

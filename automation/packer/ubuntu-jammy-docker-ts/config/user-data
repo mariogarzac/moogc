@@ -22,7 +22,7 @@ autoinstall:
     package_upgrade: false
     timezone: America/Monterrey
     users:
-      - name: mariomoo
+      - name: mario
         groups: [adm, sudo]
         lock-passwd: false
         sudo: ALL=(ALL) NOPASSWD:ALL

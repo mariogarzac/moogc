@@ -1,0 +1,13 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 30000
+    hostPort: 30000
+    listenAddress: "192.168.68.103"  # IP of vm1
+    protocol: tcp
+- role: worker
+- role: worker
+- role: worker
+
