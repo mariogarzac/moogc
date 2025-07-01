@@ -2,6 +2,8 @@
 minecraft
 credentials*
 .DS_Store
+Ex_Files*
+Exercise Files
 
 # Local .terraform directories
 **/.terraform/*
