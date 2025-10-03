@@ -1,55 +1,21 @@
-packer {
-  required_plugins {
-    name = {
-      version = "~> 1"
-      source  = "github.com/hashicorp/proxmox"
-    }
-  }
-}
+# Ubuntu Server Jammy
+# ---
+# Packer Template to create an Ubuntu Server (Jammy) on Proxmox
 
-variable "proxmox_api_url" {
-  type = string
-  default = ""
-}
+# Variable Definitions
+variable "proxmox_api_url" {}
+variable "proxmox_api_token_id" {}
+variable "proxmox_api_token_secret" {}
+variable "node" {}
+variable "memory" {}
+variable "vm_id" {}
+variable "vm_name" {}
+variable "template_description" {}
+variable "disk_size" {}
+variable "cores" {}
 
-variable "proxmox_api_token_id" {
-  type      = string
-  default = ""
-  sensitive = true
-}
-
-variable "proxmox_api_token_secret" {
-  type      = string
-  default = ""
-  sensitive = true
-}
-
-# docker tailscale
+# Resource Definition for the VM Template
 source "proxmox-iso" "ubuntu-template" {
-
-  # PACKER Boot Commands
-  boot_command = [
-    "<esc><wait>",
-    "e<wait>",
-    "<down><down><down><end>",
-    "<bs><bs><bs><bs><wait>",
-    "autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<wait>",
-    "<f10><wait>"
-  ]
-
-  # PACKER Autoinstall Settings
-  http_directory = "config"
-  http_port_min  = 8802
-  http_port_max  = 8802
-
-  boot      = "c"
-  boot_wait = "5s"
-
-  # SSH Settings
-  ssh_username         = "mario"
-  ssh_private_key_file = "~/.ssh/id_rsa"
-
-  ssh_timeout = "20m"
 
   # Proxmox Connection Settings
   proxmox_url              = "${var.proxmox_api_url}"
@@ -58,24 +24,17 @@ source "proxmox-iso" "ubuntu-template" {
   insecure_skip_tls_verify = true
 
   # VM General settings
-  node                 = "proxmox"
-  vm_id                = "505"
-  vm_name              = "ubuntu-template"
-  template_description = "Ubuntu server with docker and tailscale"
+  node                 = var.node
+  vm_id                = var.vm_id
+  vm_name              = var.vm_name
+  template_description = var.template_description
 
   # VM OS Settings
-    boot_iso {
-      type = "scsi"
-      iso_file         = "local:iso/Ubuntu_Server_22.04.4.iso"
-      iso_storage_pool = "local"
-      unmount = true
-    }
-
-  disks {
-    disk_size    = "15G"
-    storage_pool = "local"
-    type         = "virtio"
+  boot_iso {
+    iso_file = "local:iso/ubuntu-22.04.5-live-server-amd64.iso"
+    iso_storage_pool = "local"
   }
+
 
   # VM System Settings
   qemu_agent = true
@@ -83,11 +42,18 @@ source "proxmox-iso" "ubuntu-template" {
   # VM Hard Disk Settings
   scsi_controller = "virtio-scsi-pci"
 
+  disks {
+    disk_size    = var.disk_size
+    format       = "raw"
+    storage_pool = "local"
+    type         = "virtio"
+  }
+
   # VM CPU Settings
-  cores = "1"
+  cores = var.cores
 
   # VM Memory Settings
-  memory = "2048"
+  memory = var.memory
 
   # VM Network Settings
   network_adapters {
@@ -99,6 +65,36 @@ source "proxmox-iso" "ubuntu-template" {
   # VM Cloud-Init Settings
   cloud_init              = true
   cloud_init_storage_pool = "local"
+
+  # PACKER Boot Commands
+  boot_command = [
+    "<esc><wait>",
+    "e<wait>",
+    "<down><down><down><end>",
+    "<bs><bs><bs><bs><wait>",
+    "autoinstall ds=nocloud-net\\;s=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ ---<wait>",
+    "<f10><wait>"
+  ]
+  boot      = "c"
+  boot_wait = "5s"
+
+  # PACKER Autoinstall Settings
+  http_bind_address = "192.168.68.94"
+  http_directory = "config"
+  http_port_min  = 8802
+  http_port_max  = 8802
+
+  # SSH Settings
+  ssh_username         = "mario"
+  ssh_private_key_file = "~/.ssh/moogc"
+
+  ssh_timeout = "20m"
+
+  # rng0 {
+  #   source    = "/dev/urandom"
+  #   max_bytes = 1024
+  #   period    = 1000
+  # }
 
 }
 
