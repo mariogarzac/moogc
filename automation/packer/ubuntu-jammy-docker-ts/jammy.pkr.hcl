@@ -35,7 +35,6 @@ source "proxmox-iso" "ubuntu-template" {
     iso_storage_pool = "local"
   }
 
-
   # VM System Settings
   qemu_agent = true
 
@@ -79,22 +78,16 @@ source "proxmox-iso" "ubuntu-template" {
   boot_wait = "5s"
 
   # PACKER Autoinstall Settings
-  http_bind_address = "192.168.68.94"
+  # http_bind_address = "192.168.71.120"
   http_directory = "config"
   http_port_min  = 8802
   http_port_max  = 8802
 
   # SSH Settings
   ssh_username         = "mario"
-  ssh_private_key_file = "~/.ssh/moogc"
+  ssh_private_key_file = "~/.ssh/homelab"
 
   ssh_timeout = "20m"
-
-  # rng0 {
-  #   source    = "/dev/urandom"
-  #   max_bytes = 1024
-  #   period    = 1000
-  # }
 
 }
 

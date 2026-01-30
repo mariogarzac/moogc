@@ -8,12 +8,13 @@ resource "proxmox_vm_qemu" "dev" {
   agent  = 1
 
   clone   = "ubuntu-jammy"
-  cloudinit_cdrom_storage = "local"
-  cores   = 2
-  sockets = 2
-  cpu     = "host"
   memory  = "16384"
   scsihw  = "virtio-scsi-pci"
+
+  cpu {
+    cores   = 2
+    sockets = 2
+  }
 
   network {
     bridge   = "vmbr0"
