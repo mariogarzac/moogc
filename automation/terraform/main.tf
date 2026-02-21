@@ -12,3 +12,10 @@ module "patosland" {
   name     = "patosland"
   ipconfig = "gw=192.168.68.1,ip=192.168.71.111/22"
 }
+
+module "clawbot" {
+  source   = "./clawbot"
+  vmid     = "112"
+  name     = "clawbot"
+  ipconfig = "gw=192.168.68.1,ip=192.168.71.112/22"
+}
