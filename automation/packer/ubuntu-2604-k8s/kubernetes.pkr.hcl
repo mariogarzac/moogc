@@ -1,6 +1,6 @@
-# Ubuntu Server Jammy
+# Ubuntu Server Resolute Raccoon
 # ---
-# Packer Template to create an Ubuntu Server (Jammy) on Proxmox
+# Packer Template to create an Ubuntu Server (Resolute Raccoon) on Proxmox
 
 # Variable Definitions
 variable "proxmox_api_url" {}
@@ -16,7 +16,6 @@ variable "cores" {}
 
 # Resource Definition for the VM Template
 source "proxmox-iso" "ubuntu-template" {
-
   # Proxmox Connection Settings
   proxmox_url              = "${var.proxmox_api_url}"
   username                 = "${var.proxmox_api_token_id}"
@@ -31,7 +30,7 @@ source "proxmox-iso" "ubuntu-template" {
 
   # VM OS Settings
   boot_iso {
-    iso_file = "local:iso/ubuntu-22.04.5-live-server-amd64.iso"
+    iso_file = "local:iso/ubuntu-26.04-live-server-amd64.iso"
     iso_storage_pool = "local"
   }
 
@@ -44,7 +43,7 @@ source "proxmox-iso" "ubuntu-template" {
   disks {
     disk_size    = var.disk_size
     format       = "raw"
-    storage_pool = "local"
+    storage_pool = "vm-ssd"
     type         = "virtio"
   }
 
@@ -78,7 +77,6 @@ source "proxmox-iso" "ubuntu-template" {
   boot_wait = "5s"
 
   # PACKER Autoinstall Settings
-  # http_bind_address = "192.168.71.120"
   http_directory = "config"
   http_port_min  = 8802
   http_port_max  = 8802
@@ -88,7 +86,6 @@ source "proxmox-iso" "ubuntu-template" {
   ssh_private_key_file = "~/.ssh/homelab"
 
   ssh_timeout = "20m"
-
 }
 
 # Build Definition to create the VM Template
@@ -96,33 +93,18 @@ build {
   name    = "ubuntu-template"
   sources = ["source.proxmox-iso.ubuntu-template"]
 
-  # Provisioning the VM Template for Cloud-Init Integration in Proxmox #1
-  provisioner "shell" {
-    inline = [
-      "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for cloud-init...'; sleep 1; done",
-      "sudo rm /etc/ssh/ssh_host_*",
-      "sudo truncate -s 0 /etc/machine-id",
-      "sudo apt -y autoremove --purge",
-      "sudo apt -y clean",
-      "sudo apt -y autoclean",
-      "sudo cloud-init clean",
-      "sudo rm -f /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg",
-      "sudo sync"
-    ]
-  }
-
-  # Provisioning the VM Template for Cloud-Init Integration in Proxmox #2
+  # #1 - Cloud-Init Integration file copy
   provisioner "file" {
     source      = "files/99-pve.cfg"
     destination = "/tmp/99-pve.cfg"
   }
 
-  # Provisioning the VM Template for Cloud-Init Integration in Proxmox #3
+  # #2 - Cloud-Init Integration apply
   provisioner "shell" {
     inline = ["sudo cp /tmp/99-pve.cfg /etc/cloud/cloud.cfg.d/99-pve.cfg"]
   }
 
-  # Provisioning the VM Template with Docker Installation #4
+  # #3 - Docker Installation
   provisioner "shell" {
     inline = [
       "sudo apt-get install -y ca-certificates curl gnupg lsb-release",
@@ -134,13 +116,29 @@ build {
     ]
   }
 
-  # Provisioning the VM Template with Tailscale Installation #5
+  # #4 - Tailscale Installation
   provisioner "shell" {
     inline = [
-    "curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null",
-    "curl -fsSL https://pkgs.tailscale.com/stable/ubuntu/jammy.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list",
-    "sudo apt-get update",
-    "sudo apt-get install tailscale -y",
+      "curl -fsSL https://tailscale.com/install.sh | sh"
+    ]
+  }
+
+  # #5 - Cleanup
+  provisioner "shell" {
+    inline = [
+      "while [ ! -f /var/lib/cloud/instance/boot-finished ]; do echo 'Waiting for cloud-init...'; sleep 1; done",
+      "sudo rm /etc/ssh/ssh_host_*",
+      "sudo apt -y autoremove --purge",
+      "sudo apt -y clean",
+      "sudo apt -y autoclean",
+      "sudo cloud-init clean --logs",
+      "sudo rm -rf /var/lib/cloud/instances/*",
+      "sudo rm -f /etc/netplan/50-cloud-init.yaml",
+      "sudo rm -f /etc/cloud/cloud.cfg.d/subiquity-disable-cloudinit-networking.cfg",
+      "echo 'GRUB_CMDLINE_LINUX_DEFAULT=\"net.ifnames=0 biosdevname=0\"' | sudo tee -a /etc/default/grub",
+      "sudo update-grub",
+      "sudo truncate -s 0 /etc/machine-id",
+      "sudo sync"
     ]
   }
 }
