@@ -1,14 +1,12 @@
-variable "vmid" {
+variable "ssh_public_key" {
+  description = "SSH public key for root/admin access"
   type    = string
   default = ""
 }
 
-variable "name" {
+variable "ssh_private_key_path" {
+  description = "SSH private key path"
   type    = string
   default = ""
 }
 
-variable "ipconfig" {
-  type    = string
-  default = ""
-}
